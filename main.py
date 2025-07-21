@@ -27,6 +27,7 @@ def webhook():
 @bot.message_handler(func=lambda message: True)
 def reply_all(message):
     user_text = message.text.strip()
+    print(f"📥 Получено сообщение: {user_text} от {message.chat.id}")
 
     try:
         response = openai.ChatCompletion.create(
@@ -40,7 +41,9 @@ def reply_all(message):
             n=1
         )
         reply = response.choices[0].message.content.strip()
+        print(f"📤 Ответ бабки: {reply}")
     except Exception as e:
+        print(f"❌ Ошибка OpenAI: {e}")
         reply = "Ой, бабке Wi-Fi отрубили... Перезайди, юзер."
 
     bot.send_message(message.chat.id, reply)
