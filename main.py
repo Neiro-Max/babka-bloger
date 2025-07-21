@@ -30,7 +30,6 @@ def webhook():
 def handle_send_to_producer(call):
     bot.answer_callback_query(call.id, "Бабка всё передала продюсеру 🎤")
 
-    # Меняем кнопку
     new_markup = telebot.types.InlineKeyboardMarkup()
     new_markup.add(telebot.types.InlineKeyboardButton("📝 Передано продюсеру", callback_data="none"))
     bot.edit_message_reply_markup(
@@ -39,7 +38,6 @@ def handle_send_to_producer(call):
         reply_markup=new_markup
     )
 
-    # Достаём инфу
     producer_id = 1034982624
     user_id = call.from_user.id
     user_name = call.from_user.first_name or "Пользователь"
@@ -53,12 +51,15 @@ def handle_send_to_producer(call):
 
     bot.send_message(producer_id, alert)
 
+
 # === Обработчик сообщений — Бабка Зина рулит ===
 @bot.message_handler(func=lambda message: True)
 def reply_all(message):
     last_user_messages[message.from_user.id] = message.text.strip()
 
     user_text = message.text.strip()
+    last_user_messages[message.from_user.id] = user_text
+
     print(f"📥 Получено сообщение: {user_text} от {message.chat.id}")
 
     try:
