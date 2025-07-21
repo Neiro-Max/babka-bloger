@@ -14,6 +14,9 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # === Инициализация бота и Flask ===
 bot = telebot.TeleBot(TOKEN)
+babka_active = True  # Бабка включена по умолчанию
+ADMIN_ID = 1034982624  # Твой Telegram ID
+
 app = Flask(__name__)
 
 # === Роут для Telegram Webhook ===
@@ -60,11 +63,33 @@ def handle_send_to_producer(call):
     )
 
     bot.send_message(producer_id, alert, parse_mode="HTML")
+    # === Команды включения/выключения бабки ===
+@bot.message_handler(commands=['on'])
+def turn_on_babka(message):
+    global babka_active
+    if message.from_user.id == ADMIN_ID:
+        babka_active = True
+        bot.send_message(message.chat.id, "🟢 Бабка включена и снова в строю!")
+    else:
+        bot.send_message(message.chat.id, "⛔ Только админ может включать Бабку.")
+
+@bot.message_handler(commands=['off'])
+def turn_off_babka(message):
+    global babka_active
+    if message.from_user.id == ADMIN_ID:
+        babka_active = False
+        bot.send_message(message.chat.id, "🔇 Бабка замолкла. Пока что.")
+    else:
+        bot.send_message(message.chat.id, "⛔ Только админ может выключать Бабку.")
+
 
 
 # === Обработчик сообщений — Бабка Зина рулит ===
 @bot.message_handler(func=lambda message: True)
 def reply_all(message):
+        if not babka_active:
+        return
+
     user_text = message.text.strip()
     print(f"📥 Получено сообщение: {user_text} от {message.chat.id}")
 
