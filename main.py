@@ -87,8 +87,9 @@ def turn_off_babka(message):
 # === Обработчик сообщений — Бабка Зина рулит ===
 @bot.message_handler(func=lambda message: True)
 def reply_all(message):
-        if not babka_active:
+    if not babka_active:
         return
+
 
     user_text = message.text.strip()
     print(f"📥 Получено сообщение: {user_text} от {message.chat.id}")
