@@ -1,16 +1,19 @@
 import os
 import telebot
+import openai
 from flask import Flask, request
 from dotenv import load_dotenv
 
-# Загрузка переменных окружения
+# === Загрузка .env ===
 load_dotenv()
-
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 APP_URL = os.getenv("APP_URL")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
+# === Инициализация бота и Flask ===
 bot = telebot.TeleBot(TOKEN)
 app = Flask(__name__)
+openai.api_key = OPENAI_API_KEY
 
 # === Роут для Telegram Webhook ===
 @app.route(f"/{TOKEN}", methods=['POST'])
@@ -20,19 +23,36 @@ def webhook():
     bot.process_new_updates([update])
     return "!", 200
 
-# === ОБРАБОТЧИК СООБЩЕНИЙ — Бабка отвечает всем ===
+# === Обработчик сообщений — Бабка Зина рулит ===
 @bot.message_handler(func=lambda message: True)
 def reply_all(message):
-    bot.send_message(message.chat.id, "Чё орёшь, юзер? Бабка на месте.")
+    user_text = message.text.strip()
 
-# === Главная страница для проверки работы ===
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "Ты — Баба Зина, дерзкая продвинутая бабка-блогер. Отвечаешь с юмором, в стиле TikTok, без моралей, но с вайбом."},
+                {"role": "user", "content": user_text}
+            ],
+            temperature=0.85,
+            max_tokens=120,
+            n=1
+        )
+        reply = response.choices[0].message.content.strip()
+    except Exception as e:
+        reply = "Ой, бабке Wi-Fi отрубили... Перезайди, юзер."
+
+    bot.send_message(message.chat.id, reply)
+
+# === Главная страница (для Railway / проверки) ===
 @app.route('/')
 def index():
     return 'Бабка запущена!'
 
-# === УСТАНОВКА ВЕБХУКА ===
+# === Установка Webhook ===
 try:
-    webhook_url = "https://babka-bloger-production.up.railway.app/7901929142:AAH_MNEmWGMlAszMxnavrS6ePXepAMjTuFI"
+    webhook_url = f"{APP_URL}/{TOKEN}"
     print(f"📡 Установка webhook: {webhook_url}")
     success = bot.set_webhook(url=webhook_url)
 
@@ -44,6 +64,6 @@ try:
 except Exception as e:
     print(f"⚠️ Ошибка при установке webhook: {e}")
 
-# === СТАРТ FLASK ===
+# === Запуск Flask-сервера ===
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
