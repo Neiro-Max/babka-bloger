@@ -25,7 +25,6 @@ def webhook():
     bot.process_new_updates([update])
     return "!", 200
 
-import base64
 
 # === Обработчик callback-кнопки "Передать продюсеру" ===
 @bot.callback_query_handler(func=lambda call: call.data.startswith("send_to_producer"))
@@ -105,7 +104,14 @@ def reply_all(message):
     except Exception as e:
         print(f"❌ Ошибка OpenAI: {e}")
         reply = "Ой, бабке Wi-Fi отрубили... Перезайди, юзер."
-        bot.send_message(message.chat.id, reply)
+
+# Добавляем кнопку даже в случае ошибки
+encoded_text = base64.b64encode(user_text.encode()).decode()
+markup = types.InlineKeyboardMarkup()
+markup.add(types.InlineKeyboardButton("📝 Передать продюсеру", callback_data=f"send_to_producer|{encoded_text}"))
+
+bot.send_message(message.chat.id, reply, reply_markup=markup)
+
 
 
 
