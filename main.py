@@ -5,19 +5,14 @@ from flask import Flask, request
 from dotenv import load_dotenv
 
 # === Загрузка .env ===
-from dotenv import load_dotenv
 load_dotenv()
-
-import os
-import openai
-
-openai.api_key = os.getenv("OPENAI_API_KEY")  
-
+TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+APP_URL = os.getenv("APP_URL")
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # === Инициализация бота и Flask ===
 bot = telebot.TeleBot(TOKEN)
 app = Flask(__name__)
-openai.api_key = OPENAI_API_KEY
 
 # === Роут для Telegram Webhook ===
 @app.route(f"/{TOKEN}", methods=['POST'])
