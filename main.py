@@ -51,12 +51,10 @@ def index():
     return 'Бабка запущена!'
 
 # === Установка Webhook ===
-# === Установка Webhook ===
 try:
     webhook_url = f"{APP_URL}/{TOKEN}"
     print(f"📡 Установка webhook: {webhook_url}")
     success = bot.set_webhook(url=webhook_url)
-
 
     if success:
         print("✅ Webhook установлен")
