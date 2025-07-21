@@ -26,10 +26,8 @@ def webhook():
 # === Обработчик callback-кнопки "Передать продюсеру" ===
 @bot.callback_query_handler(func=lambda call: call.data == "send_to_producer")
 def handle_send_to_producer(call):
-    # Всплывающее уведомление
     bot.answer_callback_query(call.id, "Бабка всё передала продюсеру 🎤")
 
-    # Меняем кнопку на "📝 Передано продюсеру"
     new_markup = telebot.types.InlineKeyboardMarkup()
     new_markup.add(telebot.types.InlineKeyboardButton("📝 Передано продюсеру", callback_data="none"))
     bot.edit_message_reply_markup(
@@ -38,10 +36,14 @@ def handle_send_to_producer(call):
         reply_markup=new_markup
     )
 
-    # Отправка сообщения продюсеру
     producer_id = 1034982624
     user_name = call.from_user.first_name or "Пользователь"
-    user_text = call.message.text or "Текст не найден."
+
+    # Главное изменение — здесь
+    if call.message.reply_to_message and call.message.reply_to_message.text:
+        user_text = call.message.reply_to_message.text
+    else:
+        user_text = "Текст не найден."
 
     alert = (
         f"🎬 Бабка передала сообщение продюсеру!\n\n"
