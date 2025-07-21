@@ -19,6 +19,10 @@ def webhook():
     update = telebot.types.Update.de_json(json_string)
     bot.process_new_updates([update])
     return "!", 200
+    @bot.message_handler(func=lambda message: True)
+def reply_all(message):
+    bot.send_message(message.chat.id, "Чё орёшь, юзер? Бабка на месте.")
+
 
 # === Главная страница для проверки работы ===
 @app.route('/')
