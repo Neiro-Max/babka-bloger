@@ -24,12 +24,18 @@ def index():
 
 # === УСТАНОВКА ВЕБХУКА ===
 try:
-    webhook_url = f"{APP_URL.rstrip('/')}/{TOKEN.lstrip('/')}"
-    print(f"📡 Установка webhook: {webhook_url}")
-    success = bot.set_webhook(url=webhook_url)
-    print("✅ Webhook установлен" if success else "❌ Webhook не установлен")
-except Exception as e:
-    print("❌ Ошибка установки webhook:", e)
+    # 👇 Правильно формируем webhook URL
+webhook_url = f"{APP_URL.rstrip('/')}/{TOKEN.lstrip('/')}"
+
+print(f"📡 Установка webhook: {webhook_url}")
+
+success = bot.set_webhook(url=webhook_url)
+
+if success:
+    print("✅ Webhook установлен")
+else:
+    print("❌ Ошибка установки webhook")
+
 
 # === СТАРТ FLASK ===
 if __name__ == '__main__':
