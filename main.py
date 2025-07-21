@@ -14,7 +14,6 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # === Инициализация бота и Flask ===
 bot = telebot.TeleBot(TOKEN)
-
 app = Flask(__name__)
 
 # === Роут для Telegram Webhook ===
@@ -24,7 +23,6 @@ def webhook():
     update = telebot.types.Update.de_json(json_string)
     bot.process_new_updates([update])
     return "!", 200
-
 
 # === Обработчик callback-кнопки "Передать продюсеру" ===
 @bot.callback_query_handler(func=lambda call: call.data.startswith("send_to_producer"))
@@ -45,11 +43,14 @@ def handle_send_to_producer(call):
     user_name = call.from_user.first_name or "Пользователь"
 
     try:
-        encoded_text = call.data.split("|", 1)[1]
-        decoded_text = base64.b64decode(encoded_text.encode()).decode()
+        if "|" in call.data:
+            encoded_text = call.data.split("|", 1)[1]
+            decoded_text = base64.b64decode(encoded_text.encode()).decode()
+        else:
+            decoded_text = call.message.text or "⚠️ Текст не найден."
     except Exception as e:
         print(f"❌ Ошибка декодирования: {e}")
-        decoded_text = "⚠️ Не удалось расшифровать сообщение."
+        decoded_text = call.message.text or "⚠️ Текст не найден."
 
     alert = (
         f"🎬 Бабка передала сообщение продюсеру!\n\n"
@@ -59,14 +60,12 @@ def handle_send_to_producer(call):
 
     bot.send_message(producer_id, alert, parse_mode="HTML")
 
-
 # === Обработчик сообщений — Бабка Зина рулит ===
 @bot.message_handler(func=lambda message: True)
 def reply_all(message):
     user_text = message.text.strip()
     print(f"📥 Получено сообщение: {user_text} от {message.chat.id}")
 
-    # Пытаемся получить ответ от OpenAI
     try:
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
@@ -90,14 +89,12 @@ def reply_all(message):
         print(f"❌ Ошибка OpenAI: {e}")
         reply = "Ой, бабке Wi-Fi отрубили... Перезайди, юзер."
 
-    # Добавляем кнопку "Передать продюсеру"
+    # Кнопка "Передать продюсеру"
     encoded_text = base64.b64encode(user_text.encode()).decode()
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton("📝 Передать продюсеру", callback_data=f"send_to_producer|{encoded_text}"))
 
-    # Отправляем сообщение с кнопкой
     bot.send_message(message.chat.id, reply, reply_markup=markup)
-
 
 # === Главная страница (для Railway / проверки) ===
 @app.route('/')
