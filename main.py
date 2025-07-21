@@ -39,18 +39,17 @@ def handle_send_to_producer(call):
     )
 
     # Отправка сообщения продюсеру
-    # Отправка сообщения продюсеру (тебе)
-producer_id = 1034982624
-user_name = call.from_user.first_name or "Пользователь"
-user_text = call.message.text or "Текст не найден."
+    producer_id = 1034982624
+    user_name = call.from_user.first_name or "Пользователь"
+    user_text = call.message.text or "Текст не найден."
 
-alert = (
-    f"🎬 Бабка передала сообщение продюсеру!\n\n"
-    f"👤 От: {user_name} (ID: {call.from_user.id})\n"
-    f"💬 Текст: {user_text}"
-)
-bot.send_message(producer_id, alert)
+    alert = (
+        f"🎬 Бабка передала сообщение продюсеру!\n\n"
+        f"👤 От: {user_name} (ID: {call.from_user.id})\n"
+        f"💬 Текст: {user_text}"
+    )
 
+    bot.send_message(producer_id, alert)
 
 # === Обработчик сообщений — Бабка Зина рулит ===
 @bot.message_handler(func=lambda message: True)
