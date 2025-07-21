@@ -1,5 +1,6 @@
 import os
 import telebot
+from telebot import types
 import openai
 from flask import Flask, request
 from dotenv import load_dotenv
@@ -54,11 +55,16 @@ def reply_all(message):
         )
         reply = response.choices[0].message.content.strip()
         print(f"📤 Ответ бабки: {reply}")
+
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton("📝 Передать продюсеру", callback_data="send_to_producer"))
+        bot.send_message(message.chat.id, reply, reply_markup=markup)
+
     except Exception as e:
         print(f"❌ Ошибка OpenAI: {e}")
         reply = "Ой, бабке Wi-Fi отрубили... Перезайди, юзер."
+        bot.send_message(message.chat.id, reply)
 
-    bot.send_message(message.chat.id, reply)
 
 
 
