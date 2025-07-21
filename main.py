@@ -64,7 +64,6 @@ def handle_send_to_producer(call):
 @bot.message_handler(func=lambda message: True)
 def reply_all(message):
     user_text = message.text.strip()
-
     print(f"📥 Получено сообщение: {user_text} от {message.chat.id}")
 
     try:
@@ -86,20 +85,29 @@ def reply_all(message):
                         "В остальном — просто болтай с доброй ироничной ноткой, как мудрая, но современная бабушка из Telegram."
                     )
                 },
-                {"role": "user", "content": message.text}
+                {"role": "user", "content": user_text}
             ],
             temperature=0.8,
             max_tokens=700
         )
+
         reply = response.choices[0].message.content.strip()
         print(f"📤 Ответ бабки: {reply}")
 
-        # Кодируем текст для передачи в callback_data
-        encoded_text = base64.b64encode(user_text.encode()).decode()
-
+        encoded_text = base64.b64encode(reply.encode()).decode()
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton("📝 Передать продюсеру", callback_data=f"send_to_producer|{encoded_text}"))
         bot.send_message(message.chat.id, reply, reply_markup=markup)
+
+    except Exception as e:
+        print(f"❌ Ошибка OpenAI: {e}")
+        reply = "Ой, бабке Wi-Fi отрубили... Перезайди, юзер."
+
+        encoded_text = base64.b64encode(reply.encode()).decode()
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton("📝 Передать продюсеру", callback_data=f"send_to_producer|{encoded_text}"))
+        bot.send_message(message.chat.id, reply, reply_markup=markup)
+
 
     except Exception as e:
         print(f"❌ Ошибка OpenAI: {e}")
