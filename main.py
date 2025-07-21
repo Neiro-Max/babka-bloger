@@ -23,6 +23,34 @@ def webhook():
     bot.process_new_updates([update])
     return "!", 200
 
+# === Обработчик callback-кнопки "Передать продюсеру" ===
+@bot.callback_query_handler(func=lambda call: call.data == "send_to_producer")
+def handle_send_to_producer(call):
+    # Всплывающее уведомление
+    bot.answer_callback_query(call.id, "Бабка всё передала продюсеру 🎤")
+
+    # Изменяем кнопку (чтобы повторно не жали)
+    new_markup = telebot.types.InlineKeyboardMarkup()
+    new_markup.add(telebot.types.InlineKeyboardButton("✅ Передано продюсеру", callback_data="none"))
+    bot.edit_message_reply_markup(
+        chat_id=call.message.chat.id,
+        message_id=call.message.message_id,
+        reply_markup=new_markup
+    )
+
+    # Отправка сообщения продюсеру (тебе)
+    producer_id = 1034982624
+    user_name = call.from_user.first_name or "Пользователь"
+    user_text = call.message.reply_to_message.text if call.message.reply_to_message else "Текст не найден."
+
+    alert = (
+        f"🎬 Бабка передала сообщение продюсеру!\n\n"
+        f"👤 От: {user_name} (ID: {call.from_user.id})\n"
+        f"💬 Текст: {user_text}"
+    )
+    bot.send_message(producer_id, alert)
+
+
 # === Обработчик сообщений — Бабка Зина рулит ===
 @bot.message_handler(func=lambda message: True)
 def reply_all(message):
@@ -56,6 +84,7 @@ def reply_all(message):
         reply = response.choices[0].message.content.strip()
         print(f"📤 Ответ бабки: {reply}")
 
+        # Отправляем сообщение с кнопкой "Передать продюсеру"
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton("📝 Передать продюсеру", callback_data="send_to_producer"))
         bot.send_message(message.chat.id, reply, reply_markup=markup)
@@ -64,8 +93,6 @@ def reply_all(message):
         print(f"❌ Ошибка OpenAI: {e}")
         reply = "Ой, бабке Wi-Fi отрубили... Перезайди, юзер."
         bot.send_message(message.chat.id, reply)
-
-
 
 
 # === Главная страница (для Railway / проверки) ===
