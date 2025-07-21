@@ -40,7 +40,12 @@ def handle_send_to_producer(call):
 
     producer_id = 1034982624
     user_id = call.from_user.id
-    user_name = call.from_user.first_name or "Пользователь"
+username = call.from_user.username
+if username:
+    user_tag = f"@{username}"
+else:
+    user_tag = f"{call.from_user.first_name} (ID: {user_id})"
+
 
     try:
         if "|" in call.data:
@@ -53,10 +58,11 @@ def handle_send_to_producer(call):
         decoded_text = call.message.text or "⚠️ Текст не найден."
 
     alert = (
-        f"🎬 Бабка передала сообщение продюсеру!\n\n"
-        f"👤 От: {user_name} (ID: {user_id})\n"
-        f"💬 Текст: {decoded_text}"
-    )
+    f"🎬 Бабка передала сообщение продюсеру!\n\n"
+    f"👤 От: {user_tag}\n"
+    f"💬 Текст: {decoded_text}"
+)
+
 
     bot.send_message(producer_id, alert, parse_mode="HTML")
 
