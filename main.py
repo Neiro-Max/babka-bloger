@@ -31,12 +31,12 @@ def handle_send_to_producer(call):
 
     # Изменяем кнопку (чтобы повторно не жали)
     new_markup = telebot.types.InlineKeyboardMarkup()
-    new_markup.add(telebot.types.InlineKeyboardButton("✅ Передано продюсеру", callback_data="none"))
-    bot.edit_message_reply_markup(
-        chat_id=call.message.chat.id,
-        message_id=call.message.message_id,
-        reply_markup=new_markup
-    )
+new_markup.add(telebot.types.InlineKeyboardButton("📝 Передано продюсеру", callback_data="none"))
+bot.edit_message_reply_markup(
+    chat_id=call.message.chat.id,
+    message_id=call.message.message_id,
+    reply_markup=new_markup
+)
 
     # Отправка сообщения продюсеру (тебе)
     producer_id = 1034982624
