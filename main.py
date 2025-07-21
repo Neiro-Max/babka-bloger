@@ -6,11 +6,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-APP_URL = os.getenv("APP_URL")  # должен начинаться с https://
+APP_URL = os.getenv("APP_URL")  # Должен быть вида https://...
 bot = telebot.TeleBot(TOKEN)
 app = Flask(__name__)
 
-# === Логика бабки ===
+# === Обработка сообщений бабки ===
 @bot.message_handler(func=lambda message: True)
 def handle_all_messages(message):
     if message.chat.type not in ['group', 'supergroup']:
@@ -42,7 +42,7 @@ def handle_all_messages(message):
             reply_to_message_id=message.message_id
         )
 
-# === Webhook setup ===
+# === Обработка Webhook от Telegram ===
 @app.route(f"/{TOKEN}", methods=["POST"])
 def webhook():
     json_str = request.get_data().decode("utf-8")
@@ -50,12 +50,9 @@ def webhook():
     bot.process_new_updates([update])
     return "ok", 200
 
-# === При запуске — установка вебхука ===
-@app.before_first_request
-def setup_webhook():
-    bot.remove_webhook()
-    bot.set_webhook(url=f"{APP_URL}/{TOKEN}")
-
-print("Бабка-Блогер запущена через вебхук!")
+# === Запуск приложения и установка вебхука ===
 if __name__ == "__main__":
+    bot.remove_webhook()
+    success = bot.set_webhook(url=f"{APP_URL}/{TOKEN}")
+    print("Webhook установлен:", success)
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
