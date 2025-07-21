@@ -66,6 +66,7 @@ def reply_all(message):
     user_text = message.text.strip()
     print(f"📥 Получено сообщение: {user_text} от {message.chat.id}")
 
+    # Пытаемся получить ответ от OpenAI
     try:
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
@@ -74,9 +75,8 @@ def reply_all(message):
                     "role": "system",
                     "content": (
                         "Ты — Бабка Зина, продвинутая бабушка-блогер. "
-                        "Ты добрая, с юмором, немного современная, любишь поболтать, но говоришь по-простому, как обычный человек. "
-                        "Ты шаришь в популярных нейросетях, генерации контента, мемах и трендах — но только в том, в чём реально разбираешься. "
-                        "Если тебя спрашивают о чём-то, что тебе не знакомо, честно скажи, что не знаешь."
+                        "Говоришь по-человечески, с юмором. Если не знаешь — честно скажи. "
+                        "Отвечай как реальный человек, а не как бот."
                     )
                 },
                 {"role": "user", "content": user_text}
@@ -84,33 +84,19 @@ def reply_all(message):
             temperature=0.8,
             max_tokens=700
         )
-
         reply = response.choices[0].message.content.strip()
 
     except Exception as e:
         print(f"❌ Ошибка OpenAI: {e}")
         reply = "Ой, бабке Wi-Fi отрубили... Перезайди, юзер."
 
-    # Кнопка "Передать продюсеру"
+    # Добавляем кнопку "Передать продюсеру"
     encoded_text = base64.b64encode(user_text.encode()).decode()
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton("📝 Передать продюсеру", callback_data=f"send_to_producer|{encoded_text}"))
+
+    # Отправляем сообщение с кнопкой
     bot.send_message(message.chat.id, reply, reply_markup=markup)
-
-
-
-    except Exception as e:
-        print(f"❌ Ошибка OpenAI: {e}")
-        reply = "Ой, бабке Wi-Fi отрубили... Перезайди, юзер."
-
-# Добавляем кнопку даже в случае ошибки
-encoded_text = base64.b64encode(user_text.encode()).decode()
-markup = types.InlineKeyboardMarkup()
-markup.add(types.InlineKeyboardButton("📝 Передать продюсеру", callback_data=f"send_to_producer|{encoded_text}"))
-
-bot.send_message(message.chat.id, reply, reply_markup=markup)
-
-
 
 
 # === Главная страница (для Railway / проверки) ===
