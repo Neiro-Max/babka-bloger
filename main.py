@@ -86,26 +86,16 @@ def reply_all(message):
         )
 
         reply = response.choices[0].message.content.strip()
-        print(f"📤 Ответ бабки: {reply}")
 
     except Exception as e:
         print(f"❌ Ошибка OpenAI: {e}")
         reply = "Ой, бабке Wi-Fi отрубили... Перезайди, юзер."
 
-    # Кнопка "Передать продюсеру" в любом случае
+    # Кнопка "Передать продюсеру"
     encoded_text = base64.b64encode(user_text.encode()).decode()
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton("📝 Передать продюсеру", callback_data=f"send_to_producer|{encoded_text}"))
     bot.send_message(message.chat.id, reply, reply_markup=markup)
-
-    except Exception as e:
-        print(f"❌ Ошибка OpenAI: {e}")
-        reply = "Ой, бабке Wi-Fi отрубили... Перезайди, юзер."
-
-        encoded_text = base64.b64encode(reply.encode()).decode()
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton("📝 Передать продюсеру", callback_data=f"send_to_producer|{encoded_text}"))
-        bot.send_message(message.chat.id, reply, reply_markup=markup)
 
 
 
