@@ -45,7 +45,16 @@ def reply_all(message):
         print(f"❌ Ошибка OpenAI: {e}")
         reply = "Ой, бабке Wi-Fi отрубили... Перезайди, юзер."
 
-    bot.send_message(message.chat.id, reply)
+    # Отправка в комментарии, если сообщение из треда
+    if message.chat.type == "supergroup" and message.is_topic_message:
+        bot.send_message(
+            chat_id=message.chat.id,
+            text=reply,
+            message_thread_id=message.message_thread_id
+        )
+    else:
+        bot.send_message(message.chat.id, reply)
+
 
 # === Главная страница (для Railway / проверки) ===
 @app.route('/')
