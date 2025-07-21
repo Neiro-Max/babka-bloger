@@ -83,8 +83,15 @@ def turn_off_babka(message):
         bot.send_message(message.chat.id, "⛔ Только админ может выключать Бабку.")
 
 
-
 # === Обработчик сообщений — Бабка Зина рулит ===
+@bot.message_handler(func=lambda message: True)
+def reply_all(message):
+    global babka_active
+    if not babka_active:
+        return
+
+    user_text = message.text
+
     try:
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
@@ -116,13 +123,11 @@ def turn_off_babka(message):
         print(f"❌ Ошибка OpenAI: {e}")
         reply = "Ой, бабке Wi-Fi отрубили... Перезайди, юзер."
 
-
     encoded_text = base64.b64encode(user_text.encode()).decode()
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton("📝 Передать продюсеру", callback_data=f"send_to_producer|{encoded_text}"))
 
     bot.send_message(message.chat.id, reply, reply_markup=markup)
-
 
 # === Главная страница (для Railway / проверки) ===
 @app.route('/')
