@@ -24,7 +24,7 @@ def index():
 
 # === УСТАНОВКА ВЕБХУКА ===
 try:
-    webhook_url = f"{APP_URL}/{TOKEN}"
+    webhook_url = f"{APP_URL.rstrip('/')}/{TOKEN.lstrip('/')}"
     print(f"📡 Установка webhook: {webhook_url}")
     success = bot.set_webhook(url=webhook_url)
     print("✅ Webhook установлен" if success else "❌ Webhook не установлен")
