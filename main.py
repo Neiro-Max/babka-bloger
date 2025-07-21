@@ -29,16 +29,16 @@ def handle_send_to_producer(call):
     # Всплывающее уведомление
     bot.answer_callback_query(call.id, "Бабка всё передала продюсеру 🎤")
 
-    # Изменяем кнопку (чтобы повторно не жали)
+    # Меняем кнопку на "📝 Передано продюсеру"
     new_markup = telebot.types.InlineKeyboardMarkup()
-new_markup.add(telebot.types.InlineKeyboardButton("📝 Передано продюсеру", callback_data="none"))
-bot.edit_message_reply_markup(
-    chat_id=call.message.chat.id,
-    message_id=call.message.message_id,
-    reply_markup=new_markup
-)
+    new_markup.add(telebot.types.InlineKeyboardButton("📝 Передано продюсеру", callback_data="none"))
+    bot.edit_message_reply_markup(
+        chat_id=call.message.chat.id,
+        message_id=call.message.message_id,
+        reply_markup=new_markup
+    )
 
-    # Отправка сообщения продюсеру (тебе)
+    # Отправка сообщения продюсеру
     producer_id = 1034982624
     user_name = call.from_user.first_name or "Пользователь"
     user_text = call.message.reply_to_message.text if call.message.reply_to_message else "Текст не найден."
