@@ -85,14 +85,6 @@ def turn_off_babka(message):
 
 
 # === Обработчик сообщений — Бабка Зина рулит ===
-@bot.message_handler(func=lambda message: True)
-def reply_all(message):
-    if not babka_active:
-        return
-
-    user_text = message.text.strip()
-    print(f"📥 Получено сообщение: {user_text} от {message.chat.id}")
-
     try:
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
@@ -118,9 +110,12 @@ def reply_all(message):
             max_tokens=700
         )
         reply = response.choices[0].message.content.strip()
+        if not reply:
+            reply = "Ой, милок, что-то не догнала... Повтори, пожалуйста!"
     except Exception as e:
         print(f"❌ Ошибка OpenAI: {e}")
         reply = "Ой, бабке Wi-Fi отрубили... Перезайди, юзер."
+
 
     encoded_text = base64.b64encode(user_text.encode()).decode()
     markup = types.InlineKeyboardMarkup()
