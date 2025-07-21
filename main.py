@@ -6,53 +6,41 @@ from dotenv import load_dotenv
 load_dotenv()
 
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-APP_URL = os.getenv("APP_URL")  # Должен быть вида https://...
+APP_URL = os.getenv("APP_URL")  # Пример: https://babka-bloger-production.up.railway.app
+
+if not TOKEN or not APP_URL:
+    raise ValueError("TOKEN или APP_URL не задан в переменных окружения")
+
 bot = telebot.TeleBot(TOKEN)
 app = Flask(__name__)
 
-# === Обработка сообщений бабки ===
-@bot.message_handler(func=lambda message: True)
-def handle_all_messages(message):
-    if message.chat.type not in ['group', 'supergroup']:
-        return
-
-    if message.from_user is None or message.from_user.id == bot.get_me().id:
-        return
-
-    is_comment = (
-        message.reply_to_message is not None and
-        message.reply_to_message.forward_from_chat is not None and
-        message.reply_to_message.forward_from_chat.type == 'channel'
-    )
-
-    if is_comment:
-        user_message = message.text.lower()
-        if "привет" in user_message:
-            reply = "Привет, сынок. Чего хотел?"
-        elif "как дела" in user_message:
-            reply = "Да нормально, пенсию получила, сижу тут в Telegram, как модная."
-        elif "что нового" in user_message:
-            reply = "А ты бы лучше новости сам почитал, а то я тебе сейчас наговорю!"
-        else:
-            reply = "Ты по делу или просто так поболтать со старой бабкой?"
-
+# === Обработка сообщений ===
+@bot.message_handler(func=lambda m: True)
+def handle_message(message):
+    if message.chat.type in ['group', 'supergroup']:
         bot.send_message(
-            chat_id=message.chat.id,
-            text=reply,
+            message.chat.id,
+            "🧓 Бабка что-то буркнула!",
             reply_to_message_id=message.message_id
         )
 
-# === Обработка Webhook от Telegram ===
-@app.route(f"/{TOKEN}", methods=["POST"])
+# === Webhook-обработка ===
+@app.route(f"/{TOKEN}", methods=['POST'])
 def webhook():
-    json_str = request.get_data().decode("utf-8")
-    update = telebot.types.Update.de_json(json_str)
+    update = telebot.types.Update.de_json(request.data.decode("utf-8"))
     bot.process_new_updates([update])
     return "ok", 200
 
-# === Запуск приложения и установка вебхука ===
+# === Запуск приложения ===
 if __name__ == "__main__":
     bot.remove_webhook()
-    success = bot.set_webhook(url=f"{APP_URL}/{TOKEN}")
-    print("Webhook установлен:", success)
+    webhook_url = f"{APP_URL}/{TOKEN}"
+    print("Пробуем установить вебхук:", webhook_url)
+
+    success = bot.set_webhook(url=webhook_url)
+    if success:
+        print("✅ Вебхук установлен успешно.")
+    else:
+        print("❌ Не удалось установить вебхук.")
+
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
