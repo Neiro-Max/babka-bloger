@@ -5,10 +5,13 @@ from flask import Flask, request
 from dotenv import load_dotenv
 
 # === Загрузка .env ===
+from dotenv import load_dotenv
 load_dotenv()
-TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-APP_URL = os.getenv("APP_URL")
-openai.api_key = os.getenv("OPENAI_API_KEY")
+
+import os
+import openai
+
+openai.api_key = os.getenv("OPENAI_API_KEY")  
 
 
 # === Инициализация бота и Flask ===
