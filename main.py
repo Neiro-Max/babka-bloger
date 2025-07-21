@@ -13,6 +13,8 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # === Инициализация бота и Flask ===
 bot = telebot.TeleBot(TOKEN)
+last_user_messages = {}
+
 app = Flask(__name__)
 
 # === Роут для Telegram Webhook ===
@@ -54,6 +56,8 @@ def handle_send_to_producer(call):
 # === Обработчик сообщений — Бабка Зина рулит ===
 @bot.message_handler(func=lambda message: True)
 def reply_all(message):
+    last_user_messages[message.from_user.id] = message.text.strip()
+
     user_text = message.text.strip()
     print(f"📥 Получено сообщение: {user_text} от {message.chat.id}")
 
