@@ -109,6 +109,7 @@ def reply_all(message):
         bot.send_message(message.chat.id, reply, reply_markup=markup)
 
 
+
     except Exception as e:
         print(f"❌ Ошибка OpenAI: {e}")
         reply = "Ой, бабке Wi-Fi отрубили... Перезайди, юзер."
