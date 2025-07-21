@@ -26,16 +26,21 @@ def index():
     return 'Бабка запущена!'
 
 # === УСТАНОВКА ВЕБХУКА ===
+# === УСТАНОВКА ВЕБХУКА ===
 try:
-    webhook_url = f"{APP_URL.rstrip('/')}/{TOKEN.lstrip('/')}"
+    # 👇 Временно вручную подставляем ссылку
+    webhook_url = "https://babka-bloger-production.up.railway.app/7901929142:AAH_MNEmWGMlAszMxnavrS6ePXepAMjTuFI"
     print(f"📡 Установка webhook: {webhook_url}")
     success = bot.set_webhook(url=webhook_url)
+
     if success:
         print("✅ Webhook установлен")
     else:
         print("❌ Ошибка установки webhook")
+
 except Exception as e:
-    print(f"❌ Ошибка при установке webhook: {e}")
+    print(f"⚠️ Ошибка при установке webhook: {e}")
+
 
 # === СТАРТ FLASK ===
 if __name__ == '__main__':
