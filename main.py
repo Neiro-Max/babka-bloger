@@ -1,6 +1,7 @@
 import os
 import telebot
 from flask import Flask, request
+# redeploy trigger
 
 # === НАСТРОЙКИ ===
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
