@@ -40,31 +40,27 @@ def handle_send_to_producer(call):
 
     producer_id = 1034982624
     user_id = call.from_user.id
-username = call.from_user.username
-if username:
-    user_tag = f"@{username}"
-else:
-    user_tag = f"{call.from_user.first_name} (ID: {user_id})"
-
+    username = call.from_user.username
+    if username:
+        user_tag = f"@{username}"
+    else:
+        user_tag = f"{call.from_user.first_name or 'Пользователь'} (ID: {user_id})"
 
     try:
-        if "|" in call.data:
-            encoded_text = call.data.split("|", 1)[1]
-            decoded_text = base64.b64decode(encoded_text.encode()).decode()
-        else:
-            decoded_text = call.message.text or "⚠️ Текст не найден."
+        encoded_text = call.data.split("|", 1)[1]
+        decoded_text = base64.b64decode(encoded_text.encode()).decode()
     except Exception as e:
         print(f"❌ Ошибка декодирования: {e}")
-        decoded_text = call.message.text or "⚠️ Текст не найден."
+        decoded_text = "⚠️ Не удалось расшифровать сообщение."
 
     alert = (
-    f"🎬 Бабка передала сообщение продюсеру!\n\n"
-    f"👤 От: {user_tag}\n"
-    f"💬 Текст: {decoded_text}"
-)
-
+        f"🎬 Бабка передала сообщение продюсеру!\n\n"
+        f"👤 От: {user_tag}\n"
+        f"💬 Текст: {decoded_text}"
+    )
 
     bot.send_message(producer_id, alert, parse_mode="HTML")
+
 
 # === Обработчик сообщений — Бабка Зина рулит ===
 @bot.message_handler(func=lambda message: True)
