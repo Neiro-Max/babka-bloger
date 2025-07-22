@@ -99,12 +99,7 @@ def reply_all(message):
     chat_id = message.chat.id
     user_text = message.text
 
-    # — Память бабки (до 5 последних сообщений)
-    if chat_id not in memory:
-        memory[chat_id] = []
-    memory[chat_id].append({"role": "user", "content": user_text})
-    memory[chat_id] = memory[chat_id][-5:]
-
+    # — Формируем сообщения для GPT: system + последнее сообщение + история
     messages = [
         {
             "role": "system",
@@ -119,7 +114,8 @@ def reply_all(message):
                 "которая в ТикТоке сидит и GPT тренирует.\n"
                 "Главное — чтобы тебя было интересно слушать и с тобой хотелось говорить."
             )
-        }
+        },
+        {"role": "user", "content": user_text}
     ] + memory[chat_id]
 
     try:
@@ -134,9 +130,12 @@ def reply_all(message):
             reply = "Ой, милота, что-то не догнала... Повтори, пожалуйста!"
     except Exception as e:
         print(f"❌ Ошибка OpenAI: {e}")
+        import traceback
+        traceback.print_exc()
         reply = "Ой, бабке Wi-Fi отрубили... Перезайди, юзер."
 
-    # — Сохраняем ответ бабки
+    # — Сохраняем в историю после ответа
+    memory[chat_id].append({"role": "user", "content": user_text})
     memory[chat_id].append({"role": "assistant", "content": reply})
     memory[chat_id] = memory[chat_id][-5:]
 
@@ -146,6 +145,7 @@ def reply_all(message):
     markup.add(types.InlineKeyboardButton("📝 Передать продюсеру", callback_data=f"send_to_producer|{encoded_text}"))
 
     bot.send_message(chat_id, reply, reply_markup=markup)
+
 
 
 
