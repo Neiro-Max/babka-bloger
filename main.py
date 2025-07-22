@@ -99,11 +99,10 @@ def reply_all(message):
     chat_id = message.chat.id
     user_text = message.text
 
-    # — СРАЗУ добавляем сообщение в память
-    memory[chat_id].append({"role": "user", "content": user_text})
-    memory[chat_id] = memory[chat_id][-5:]
+    # — История из памяти (без текущего сообщения)
+    history = memory[chat_id][-4:]  # максимум 4 последних
 
-    # — Составляем список сообщений для GPT: system + история
+    # — Список сообщений для GPT: system + история + текущее сообщение
     messages = [
         {
             "role": "system",
@@ -123,7 +122,7 @@ def reply_all(message):
                 "Отвечай так, чтобы с тобой реально хотели переписываться."
             )
         }
-    ] + memory[chat_id]
+    ] + history + [{"role": "user", "content": user_text}]
 
     try:
         response = openai.ChatCompletion.create(
@@ -141,7 +140,8 @@ def reply_all(message):
         traceback.print_exc()
         reply = "Ой, бабке Wi-Fi отрубили... Перезайди, юзер."
 
-    # — Добавляем ответ бабки в память
+    # — Сохраняем только после получения ответа
+    memory[chat_id].append({"role": "user", "content": user_text})
     memory[chat_id].append({"role": "assistant", "content": reply})
     memory[chat_id] = memory[chat_id][-5:]
 
