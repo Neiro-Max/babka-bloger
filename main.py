@@ -12,6 +12,7 @@ TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 APP_URL = os.getenv("APP_URL")
 openai.api_key = os.getenv("OPENAI_API_KEY")
 from collections import defaultdict, deque
+memory = defaultdict(lambda: [])
 
 # Храним последние 5 сообщений по chat_id
 user_histories = defaultdict(lambda: deque(maxlen=5))
