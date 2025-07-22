@@ -97,17 +97,16 @@ def reply_all(message):
         return
 
     chat_id = message.chat.id
-    user_text = message.text
+    user_text = message.text.strip()
 
-    # — Триггеры: если вопрос про нейросети или технику — подскажем GPT, что это важно
+    # — Триггеры: если вопрос про технику — добавляем подсказку в messages
     tech_triggers = ["нейросеть", "нейро", "бот", "openai", "gpt", "интернет", "чат", "ai", "алгоритм", "обучение", "пост", "комментарий"]
-    if any(trigger in user_text.lower() for trigger in tech_triggers):
-        user_text += " (объясни просто и понятно, по-бабкиному)"
+    is_tech = any(trigger in user_text.lower() for trigger in tech_triggers)
 
-    # — История из памяти (без текущего сообщения)
+    # — История (без текущего сообщения)
     history = memory[chat_id][-4:]
 
-    # — Список сообщений для GPT: system + история + текущее сообщение
+    # — Составляем список сообщений для GPT
     messages = [
         {
             "role": "system",
@@ -128,7 +127,17 @@ def reply_all(message):
                 "Отвечай так, чтобы с тобой реально хотели переписываться."
             )
         }
-    ] + history + [{"role": "user", "content": user_text}]
+    ]
+
+    # — Вставляем «подсказку» перед реальным сообщением, если вопрос технарский
+    if is_tech:
+        messages.append({
+            "role": "user",
+            "content": "Вопрос про технологии, Telegram, нейросети или комментарии. Объясни просто и по-бабкиному."
+        })
+
+    # — Добавляем историю + текущее сообщение
+    messages += history + [{"role": "user", "content": user_text}]
 
     try:
         response = openai.ChatCompletion.create(
@@ -146,17 +155,18 @@ def reply_all(message):
         traceback.print_exc()
         reply = "Ой, бабке Wi-Fi отрубили... Перезайди, юзер."
 
-    # — Сохраняем только после получения ответа
+    # — Сохраняем в память после ответа
     memory[chat_id].append({"role": "user", "content": user_text})
     memory[chat_id].append({"role": "assistant", "content": reply})
     memory[chat_id] = memory[chat_id][-5:]
 
     # — Кнопка "Передать продюсеру"
-    encoded_text = base64.b64encode(message.text.encode()).decode()
+    encoded_text = base64.b64encode(user_text.encode()).decode()
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton("📝 Передать продюсеру", callback_data=f"send_to_producer|{encoded_text}"))
 
     bot.send_message(chat_id, reply, reply_markup=markup)
+
 
 
 
