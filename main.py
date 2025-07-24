@@ -5,6 +5,17 @@ from telebot import types
 import openai
 from flask import Flask, request
 from dotenv import load_dotenv
+from collections import defaultdict
+
+# История сообщений по каждому юзеру
+user_histories = defaultdict(list)
+MAX_HISTORY = 5  # сколько последних сообщений запоминаем
+def update_history(user_id, message_text):
+    user_histories[user_id].append(message_text)
+    if len(user_histories[user_id]) > MAX_HISTORY:
+        user_histories[user_id] = user_histories[user_id][-MAX_HISTORY:]
+
+
 
 # === Загрузка .env ===
 load_dotenv()
@@ -95,23 +106,31 @@ def reply_all(message):
     print(f"📥 Получено сообщение: {user_text} от {message.chat.id}")
 
     try:
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {
-                    "role": "system",
-                    "content": (
-                        "Ты — Бабка Зина, продвинутая бабушка-блогер. "
-                        "Говоришь по-человечески, с юмором. Если не знаешь — честно скажи. "
-                        "Отвечай как реальный человек, а не как бот."
-                    )
-                },
-                {"role": "user", "content": user_text}
-            ],
-            temperature=0.8,
-            max_tokens=700
-        )
-        reply = response.choices[0].message.content.strip()
+            # Обновляем историю пользователя
+    update_history(message.from_user.id, user_text)
+
+    # Формируем цепочку сообщений для GPT
+    chat_history = [
+        {"role": "system", "content": (
+            "Ты — Бабка Зина, дерзкая, живая бабушка-блогер. "
+            "Отвечаешь как человек: язвишь, шутишь, иногда матом, иногда по-доброму. "
+            "Если вопрос вне темы — честно скажи, но не молчи. "
+            "Ты не бот, ты персонаж. Реагируй естественно и не заученно."
+        )}
+    ]
+
+    for msg in user_histories[message.from_user.id]:
+        chat_history.append({"role": "user", "content": msg})
+
+    # Отправляем запрос к GPT
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=chat_history,
+        temperature=1.0,
+        max_tokens=700
+    )
+    reply = response.choices[0].message.content.strip()
+
 
     except Exception as e:
         print(f"❌ Ошибка OpenAI: {e}")
