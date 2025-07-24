@@ -119,36 +119,40 @@ def reply_all(message):
     user_text = message.text.strip()
     print(f"📥 Получено сообщение: {user_text} от {message.chat.id}")
 
-    try:
-    # Случайный стиль бабки
-       random_style = random.choice(babushka_styles)
+        try:
+        # Случайный стиль бабки
+        random_style = random.choice(babushka_styles)
 
-    update_history(message.from_user.id, user_text)
+        # Обновляем историю пользователя
+        update_history(message.from_user.id, message.text.strip())
 
-    chat_history = [
-        {"role": "system", "content": (
-            f"{random_style} "
-            "Отвечай по-человечески, без заученных фраз. "
-            "Если вопрос не по теме — шути, но не молчи. "
-            "Не используй обращений по полу — ни 'дорогая', ни 'милок'. "
-            "Только нейтральные слова: юзер, подписчик, человек."
-        )}
-    ]
+        # Формируем цепочку сообщений для GPT
+        chat_history = [
+            {"role": "system", "content": (
+                f"{random_style} "
+                "Отвечай по-человечески, без заученных фраз. "
+                "Если вопрос не по теме — шути, но не молчи. "
+                "Не используй обращений по полу — ни 'дорогая', ни 'милок'. "
+                "Только нейтральные слова: юзер, подписчик, человек."
+            )}
+        ]
 
-    for msg in user_histories[message.from_user.id]:
-        chat_history.append({"role": "user", "content": msg})
+        for msg in user_histories[message.from_user.id]:
+            chat_history.append({"role": "user", "content": msg})
 
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=chat_history,
-        temperature=1.0,
-        max_tokens=700
-    )
-    reply = response.choices[0].message.content.strip()
+        # Отправляем запрос к GPT
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=chat_history,
+            temperature=1.0,
+            max_tokens=700
+        )
+        reply = response.choices[0].message.content.strip()
 
-except Exception as e:
-    print(f"❌ Ошибка OpenAI: {e}")
-    reply = "Ой, бабке Wi-Fi отрубили... Перезайди, юзер."
+    except Exception as e:
+        print(f"❌ Ошибка OpenAI: {e}")
+        reply = "Ой, бабке Wi-Fi отрубили... Перезайди, юзер."
+
 
 
     # Кнопка "Передать продюсеру"
