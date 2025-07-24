@@ -147,6 +147,9 @@ def reply_all(message):
             max_tokens=700
         )
         reply = response.choices[0].message.content.strip()
+                if not reply or len(reply) < 3:
+            reply = "Я тебе не Википедия, юзер. Но чё-то ты мудришь конкретно..."
+
 
     except Exception as e:
         print(f"❌ Ошибка OpenAI: {e}")
