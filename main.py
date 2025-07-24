@@ -17,8 +17,7 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 bot = telebot.TeleBot(TOKEN)
 babka_active = True
 ADMIN_ID = 1034982624
-# — Разрешённые чаты (по chat_id)
-ALLOWED_CHAT_IDS = [1002478125911]  # Добавь сюда ID своих групп или каналов
+
 
 
 app = Flask(__name__)
@@ -88,15 +87,8 @@ def turn_off_babka(message):
 # === Обработчик сообщений — Бабка Зина умнеет ===
 @bot.message_handler(func=lambda message: True)
 def reply_all(message):
-    if message.chat.id not in ALLOWED_CHAT_IDS:
-        return  # если чат не в списке — бабка молчит
-
     if not babka_active:
         return
-
-    if message.from_user.id not in ALLOWED_USERS:
-        return
-
 
     chat_id = message.chat.id
     user_text = message.text.strip()
