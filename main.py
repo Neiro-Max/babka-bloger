@@ -115,16 +115,15 @@ def reply_all(message):
     if not babka_active:
         return
 
-
     user_text = message.text.strip()
     print(f"📥 Получено сообщение: {user_text} от {message.chat.id}")
 
-        try:
+    try:
         # Случайный стиль бабки
         random_style = random.choice(babushka_styles)
 
         # Обновляем историю пользователя
-        update_history(message.from_user.id, message.text.strip())
+        update_history(message.from_user.id, user_text)
 
         # Формируем цепочку сообщений для GPT
         chat_history = [
@@ -153,14 +152,13 @@ def reply_all(message):
         print(f"❌ Ошибка OpenAI: {e}")
         reply = "Ой, бабке Wi-Fi отрубили... Перезайди, юзер."
 
-
-
     # Кнопка "Передать продюсеру"
     encoded_text = base64.b64encode(user_text.encode()).decode()
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton("📝 Передать продюсеру", callback_data=f"send_to_producer|{encoded_text}"))
 
     bot.send_message(message.chat.id, reply, reply_markup=markup)
+
 
 # === Главная страница (для Railway / проверки) ===
 @app.route('/')
