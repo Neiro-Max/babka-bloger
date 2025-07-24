@@ -87,6 +87,10 @@ def reply_all(message):
     if not babka_active:
         return
 
+    if message.from_user.id not in ALLOWED_USERS:
+        return
+
+
     chat_id = message.chat.id
     user_text = message.text.strip()
 
