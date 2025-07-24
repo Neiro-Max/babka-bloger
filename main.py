@@ -112,7 +112,7 @@ def reply_all(message):
         })
 
     messages += history + [{"role": "user", "content": user_text}]
-    ] + list(memory[chat_id])
+    
 
     try:
         response = openai.ChatCompletion.create(
