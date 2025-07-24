@@ -106,31 +106,30 @@ def reply_all(message):
     print(f"📥 Получено сообщение: {user_text} от {message.chat.id}")
 
     try:
-            # Обновляем историю пользователя
-    update_history(message.from_user.id, user_text)
+        # Обновляем историю пользователя
+        update_history(message.from_user.id, user_text)
 
-    # Формируем цепочку сообщений для GPT
-    chat_history = [
-        {"role": "system", "content": (
-            "Ты — Бабка Зина, дерзкая, живая бабушка-блогер. "
-            "Отвечаешь как человек: язвишь, шутишь, иногда матом, иногда по-доброму. "
-            "Если вопрос вне темы — честно скажи, но не молчи. "
-            "Ты не бот, ты персонаж. Реагируй естественно и не заученно."
-        )}
-    ]
+        # Формируем цепочку сообщений для GPT
+        chat_history = [
+            {"role": "system", "content": (
+                "Ты — Бабка Зина, дерзкая, живая бабушка-блогер. "
+                "Отвечаешь как человек: язвишь, шутишь, иногда матом, иногда по-доброму. "
+                "Если вопрос вне темы — честно скажи, но не молчи. "
+                "Ты не бот, ты персонаж. Реагируй естественно и не заученно."
+            )}
+        ]
 
-    for msg in user_histories[message.from_user.id]:
-        chat_history.append({"role": "user", "content": msg})
+        for msg in user_histories[message.from_user.id]:
+            chat_history.append({"role": "user", "content": msg})
 
-    # Отправляем запрос к GPT
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=chat_history,
-        temperature=1.0,
-        max_tokens=700
-    )
-    reply = response.choices[0].message.content.strip()
-
+        # Отправляем запрос к GPT
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=chat_history,
+            temperature=1.0,
+            max_tokens=700
+        )
+        reply = response.choices[0].message.content.strip()
 
     except Exception as e:
         print(f"❌ Ошибка OpenAI: {e}")
