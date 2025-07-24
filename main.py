@@ -121,7 +121,7 @@ def reply_all(message):
 
     try:
     # Случайный стиль бабки
-    random_style = random.choice(babushka_styles)
+       random_style = random.choice(babushka_styles)
 
     update_history(message.from_user.id, user_text)
 
